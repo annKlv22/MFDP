@@ -3,3 +3,4 @@ data/processed/
 *.wav
 *.ogg
 *.mp3
+.env
