@@ -6,3 +6,5 @@
     use_ssl = true
     access_key_id = VToRtBZWvhKhrCdGwpTC
     secret_access_key = sBUymXTg8BbJ5HrDLtFLz7Rf828E50VhMQIMNeRg
+    read_timeout = 300
+    connect_timeout = 60
