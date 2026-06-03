@@ -23,7 +23,6 @@
 
 | Вид | Русское название | Сегментов |
 |-----|-----------------|-----------|
-| Ficedula hypoleuca | Мухоловка-пеструшка | 142 |
 | Anas platyrhynchos | Кряква | 30 |
 | Turdus merula | Чёрный дрозд | 30 |
 | Cuculus canorus | Кукушка | 32 |
@@ -72,6 +71,7 @@
 | Emberiza citrinella | Обыкновенная овсянка | 116 |
 | Certhia familiaris | Обыкновенная пищуха | 126 |
 | Dendrocopos major | Большой пёстрый дятел | 141 |
+| Ficedula hypoleuca | Мухоловка-пеструшка | 142 |
 | Lophophanes cristatus | Хохлатая синица | 182 |
 
 ### Сводная статистика
