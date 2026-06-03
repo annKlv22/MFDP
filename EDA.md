@@ -15,7 +15,7 @@
 **После препроцессинга** (нарезка на 5-секундные сегменты WAV 48kHz с перекрытием 2.5 сек,
 фильтрация тихих) и объединения подвидов с родительским видом:
 - **41 вид**
-- **3312 сегментов**
+- **2848 сегментов**
 
 ## 2. Базовый EDA
 
@@ -27,68 +27,67 @@
 | Turdus iliacus | Белобровик | 32 |
 | Corvus cornix | Серая ворона | 36 |
 | Erithacus rubecula | Зарянка | 39 |
+| Oenanthe oenanthe | Обыкновенная каменка | 40 |
 | Anthus pratensis | Луговой конёк | 40 |
 | Linaria cannabina | Коноплянка | 40 |
+| Ficedula hypoleuca | Мухоловка-пеструшка | 46 |
 | Columba livia | Сизый голубь | 46 |
-| Carpodacus erythrinus | Обыкновенная чечевица | 47 |
 | Strix uralensis | Длиннохвостая неясыть | 47 |
+| Carpodacus erythrinus | Обыкновенная чечевица | 47 |
 | Chloris chloris | Зеленушка | 51 |
-| Circus pygargus | Луговой лунь | 52 |
-| Parus major | Большая синица | 52 |
-| Passer domesticus | Домовой воробей | 52 |
 | Turdus pilaris | Рябинник | 52 |
+| Passer domesticus | Домовой воробей | 52 |
+| Parus major | Большая синица | 52 |
+| Motacilla flava | Жёлтая трясогузка | 52 |
+| Circus pygargus | Луговой лунь | 52 |
 | Passer montanus | Полевой воробей | 53 |
 | Pyrrhula pyrrhula | Снегирь | 56 |
+| Cuculus canorus | Кукушка | 58 |
 | Bombycilla garrulus | Свиристель | 58 |
+| Larus argentatus | Серебристая чайка | 60 |
 | Aegithalos caudatus | Длиннохвостая синица | 64 |
+| Fringilla coelebs | Зяблик | 64 |
 | Cyanistes caeruleus | Лазоревка | 68 |
-| Motacilla flava | Жёлтая трясогузка | 68 |
 | Spinus spinus | Чиж | 68 |
-| Coccothraustes coccothraustes | Дубонос | 72 |
+| Certhia familiaris | Обыкновенная пищуха | 72 |
 | Emberiza schoeniclus | Камышовая овсянка | 72 |
-| Oenanthe oenanthe | Обыкновенная каменка | 73 |
+| Coccothraustes coccothraustes | Дубонос | 72 |
 | Dendrocopos leucotos | Белоспинный дятел | 80 |
+| Dendrocopos major | Большой пёстрый дятел | 81 |
+| Lophophanes cristatus | Хохлатая синица | 86 |
 | Chroicocephalus ridibundus | Озёрная чайка | 96 |
-| Fringilla coelebs | Зяблик | 96 |
 | Hydrocoloeus minutus | Малая чайка | 96 |
-| Larus argentatus | Серебристая чайка | 96 |
 | Motacilla alba | Белая трясогузка | 100 |
 | Troglodytes troglodytes | Крапивник | 100 |
 | Anthus trivialis | Лесной конёк | 103 |
-| Certhia familiaris | Обыкновенная пищуха | 106 |
 | Emberiza citrinella | Обыкновенная овсянка | 116 |
-| Dendrocopos major | Большой пёстрый дятел | 125 |
-| Cuculus canorus | Кукушка | 128 |
 | Anas platyrhynchos | Кряква | 129 |
-| Ficedula hypoleuca | Мухоловка-пеструшка | 146 |
-| Lophophanes cristatus | Хохлатая синица | 170 |
+| Turdus merula | Чёрный дрозд | 170 |
 | Carduelis carduelis | Щегол | 172 |
-| Turdus merula | Чёрный дрозд | 185 |
 
 ### Сводная статистика
 
 | Показатель | Значение |
 |------------|----------|
 | Видов | 41 |
-| Сегментов всего | 3312 |
-| Среднее на вид | 80.8 |
-| Медиана | 68.0 |
+| Сегментов всего | 2848 |
+| Среднее на вид | 69.5 |
+| Медиана | 58.0 |
 | Минимум | 30 (Serinus serinus) |
-| Максимум | 185 (Turdus merula) |
-| Соотношение max/min | 6.2× |
+| Максимум | 172 (Carduelis carduelis) |
+| Соотношение max/min | 5.7× |
 
 ### Дисбаланс классов
 
 | Группа | Видов | Доля |
 |--------|-------|------|
 | < 30 сегментов | 0 | 0% |
-| 30–60 сегментов | 17 | 41% |
-| 60+ сегментов | 24 | 59% |
+| 30–60 сегментов | 22 | 54% |
+| 60+ сегментов | 19 | 46% |
 
 **Выводы для моделирования:**
-- Дисбаланс **6.2×** 
-- Видов с < 30 сегментов не осталось — датасет пригоден для обучения без критичного дисбаланса
-- 59% видов имеют 60+ сегментов — датасет хорошо насыщен для дообучения BirdNET
+- Дисбаланс **5.7×** — умеренный, датасет пригоден для обучения
+- Видов с < 30 сегментов нет
 - Взвешивание классов (`--class_weights`) при обучении желательно
 
 ## 3. Качество разметки
