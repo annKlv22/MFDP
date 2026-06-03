@@ -1,18 +1,3 @@
-"""
-Preprocess audio files for BirdNET fine-tuning:
-  - Convert to WAV mono 48kHz
-  - Segment into 5-second chunks with 2.5s overlap
-  - Skip near-silent segments
-  - Output: data/processed/{Genus_species}/*.wav
-
-Species is extracted from the Xeno-Canto filename:
-  "XC123456 - Русское название - Genus species.mp3"  -> "Genus species"
-
-Usage:
-    python src/data/preprocess.py --input data/audio --output data/processed
-    python src/data/preprocess.py --input data/audio_xc --output data/processed
-"""
-
 import argparse
 import re
 import sys
