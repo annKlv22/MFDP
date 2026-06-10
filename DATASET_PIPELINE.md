@@ -1,54 +1,53 @@
 # Dataset Pipeline — Regional Bird ID (SPb/Leningrad Oblast)
 
 ## Источники данных
-- **Xeno-Canto** — 188 записей, скачаны вручную, вид кодируется в названии файла
+- **Xeno-Canto** — 173 записи (20 целевых видов), отобраны вручную по гео-боксу СПб/Ленобласти.
   - Источник: https://xeno-canto.org/explore?query=box%3A58.827%2C28.743%2C60.868%2C34.522
-  - Файлы лежат в `data/audio/` 
+  - Лежат в `data/audio/<Вид>/` — **вид задаётся именем папки**; объединения «Воробей» (домовый+полевой)
+    и «Чайка» (малая+озёрная+серебристая) реализованы как папки.
+  - Под DVC отслеживается/пушится **только `data/audio`** (`processed`/`metadata` — производные, не пушатся).
 
 ## Порядок запуска
+> На Colab весь пайплайн выполняет сам ноутбук `notebooks/bird_id_models.ipynb`.
+> Локально нужен исправный Python с `librosa` (на повреждённом 3.14 не работает — используйте 3.12).
 
-### 1. Препроцессинг → 5-секундные сегменты WAV 48kHz
+### 1. Препроцессинг → 5-сек сегменты WAV 48kHz (вид = имя папки)
 ```powershell
-python src/data/preprocess.py --input data/audio --output data/processed
+python src/data/preprocess.py --input data/audio --output data/processed --clean
 ```
 
-### 2. Аугментация (особенно для редких видов с < 30 сегментами)
+### 2. CSV train/val/test без утечки
+Сплит **по записям** (Xeno-Canto id), стратификация по виду, доли 70/15/15.
+Сегменты одной записи не попадают в разные сплиты; проверка `assert_no_leakage`.
 ```powershell
-python src/data/augment.py --processed-dir data/processed --copies 3 --min-files-to-augment 30
+python src/data/create_birdnet_csv.py --processed-dir data/processed --val-split 0.15 --test-split 0.15
 ```
 
-### 3. CSV для BirdNET
+### 3. Сохранить аудио через DVC
 ```powershell
-python src/data/create_birdnet_csv.py --processed-dir data/processed --val-split 0.15
-```
-
-### 4. Сохранить через DVC
-```powershell
-dvc add data/audio data/audio_xc data/processed
-git add data/audio.dvc data/audio_xc.dvc data/processed.dvc data/.gitignore
+dvc add data/audio
 dvc push
-git commit -m "Add XC audio + processed segments"
+git add data/audio.dvc
+git commit -m "Update audio"
 ```
 
 ## Структура датасета
 ```
 data/
-  audio/              <- записи Xeno-Canto (вручную)
-  processed/
-    Cuculus_canorus/
-      XC56032_seg000.wav
-      ...
-  metadata/
-    train.csv
-    val.csv
+  audio/                 <- записи Xeno-Canto по папкам-видам (под DVC)
+    Большая_синица/
+    Чайка/
+    ...
+  processed/             <- 5-сек сегменты (генерируются preprocess.py; НЕ под DVC)
+    Большая_синица/
+      XC1085132 - Большая синица - Parus major_seg000.wav
+  metadata/              <- train/val/test.csv (генерируются create_birdnet_csv.py; НЕ под DVC)
 ```
 
-## Формат имён файлов Xeno-Canto
-```
-XC123456 - Русское название - Genus species.mp3
-```
-Скрипт `preprocess.py` автоматически извлекает `Genus species` из имени файла.
+## Аугментация
+Отдельного скрипта нет. Для CNN аугментация делается **«на лету»** в ноутбуке
+(SpecAugment: маскирование по частоте/времени + шум), только на train.
+Эмбеддингам (AST/BirdNET) аугментация не нужна.
 
 ## По шуму
-Шумоподавление не применяем — нарушает признаки пения.
-Вместо этого аугментация при обучении: наложение шума, pitch/time shift.
+Шумоподавление не применяем — оно искажает признаки пения. Робастность к шуму даёт аугментация при обучении.

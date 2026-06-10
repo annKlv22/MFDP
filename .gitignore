@@ -3,3 +3,5 @@ data/processed/
 *.wav
 *.ogg
 *.mp3
+__pycache__/
+*.pyc
