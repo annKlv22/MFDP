@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="icon" href="/static/img/placeholder.svg" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🐦</span>
+      <div>
+        <div class="brand-title">{{ app_name }}</div>
+        <div class="brand-sub">Санкт-Петербург и Ленобласть · 20 видов</div>
+      </div>
+    </div>
+    <a class="docs-link" href="/api/docs" target="_blank" rel="noopener">API&nbsp;/&nbsp;Docs</a>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    MVP-определитель птиц по голосу · модель AST&nbsp;+&nbsp;региональная голова
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

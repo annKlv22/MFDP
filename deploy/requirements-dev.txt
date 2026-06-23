@@ -1,0 +1,5 @@
+# Зависимости для запуска тестов на хосте (без torch — он нужен только воркеру в Docker).
+-r app/requirements.txt
+numpy==1.26.4
+pytest==8.3.4
+httpx==0.28.1

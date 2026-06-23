@@ -1,0 +1,15 @@
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.venv/
+**/.venv/
+venv/
+.pytest_cache/
+tests/
+conftest.py
+pytest.ini
+requirements-dev.txt
+.env
+*.md
+.git/
+.gitignore

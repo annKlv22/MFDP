@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card uploader">
+  <h1>Определите птицу по голосу</h1>
+  <p class="lead">Загрузите короткую запись (5–10 секунд) — сервис определит вид и покажет вероятность. Регистрация не нужна.</p>
+
+  <form id="upload-form">
+    <label id="dropzone" class="dropzone" for="file-input">
+      <input id="file-input" type="file" accept=".wav,.mp3,.m4a,.ogg,.flac,audio/*" hidden />
+      <div class="dz-icon">🎙️</div>
+      <div class="dz-text"><strong>Выберите файл</strong> или перетащите сюда</div>
+      <div class="dz-hint">WAV, MP3, M4A · до {{ max_mb }} МБ</div>
+    </label>
+
+    <div id="file-info" class="file-info hidden">
+      <audio id="audio-preview" controls></audio>
+      <div class="file-meta">
+        <span id="file-name"></span>
+        <button type="button" id="reset-btn" class="link">сбросить</button>
+      </div>
+    </div>
+
+    <button id="submit-btn" type="submit" class="btn primary" disabled>Определить</button>
+  </form>
+</section>
+
+<section id="result" class="card result hidden"></section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/app.js"></script>
+{% endblock %}

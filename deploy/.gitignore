@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+# локальные данные (на диске D), в репозиторий не попадают
+uploads/
+hf-cache/
