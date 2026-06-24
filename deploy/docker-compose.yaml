@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS:-birdpass}
       POSTGRES_DB: ${DB_NAME:-birds}
     volumes:
-      - ${HOST_DATA_DIR:-D:/mfdp-data}/postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-birduser} -d ${DB_NAME:-birds}"]
       interval: 10s
@@ -29,7 +29,7 @@ services:
     ports:
       - "15672:15672"   # веб-консоль RabbitMQ (наблюдать очередь и воркеров)
     volumes:
-      - ${HOST_DATA_DIR:-D:/mfdp-data}/rabbitmq:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
       interval: 15s
@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
     env_file: [.env]
     volumes:
-      - ${HOST_DATA_DIR:-D:/mfdp-data}/uploads:/data/uploads
+      - uploads:/data/uploads
     depends_on:
       db: {condition: service_healthy}
       rabbitmq: {condition: service_healthy}
@@ -67,8 +67,8 @@ services:
     restart: unless-stopped
     env_file: [.env]
     volumes:
-      - ${HOST_DATA_DIR:-D:/mfdp-data}/uploads:/data/uploads
-      - ${HOST_DATA_DIR:-D:/mfdp-data}/hf-cache:/cache/hf
+      - uploads:/data/uploads
+      - hf_cache:/cache/hf
     depends_on:
       db: {condition: service_healthy}
       rabbitmq: {condition: service_healthy}
@@ -90,3 +90,13 @@ services:
 networks:
   bird-net:
     driver: bridge
+
+# Именованные тома: кроссплатформенно, без привязки к диску/букве — работает на Windows/Mac/Linux.
+# Данные переживают `docker compose down` (стираются только при `down -v`).
+# Чтобы все тома физически лежали на диске D: Docker Desktop → Settings → Resources → Advanced →
+# Disk image location → D:\DockerData (туда уедут и образы, и тома).
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  uploads:
+  hf_cache:

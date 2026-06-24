@@ -69,15 +69,27 @@ librosa · Jinja2 + ванильный JS · nginx · Docker Compose · pytest.
 
 ---
 
-## Быстрый старт (Docker, тома на диске D)
+## Модель
 
-> Требуется Docker Desktop. Все тяжёлые данные (БД, очередь, **кэш модели ~346 МБ**, загруженные аудио)
-> хранятся на **диске D** через переменную `HOST_DATA_DIR`.
+Состоит из двух частей:
+- **Региональная «голова»** (`StandardScaler` + `LogisticRegression`) обучена на наших данных и лежит
+  **прямо в репозитории**: `worker/models_store/ast_head.joblib` (~143 КБ) + `classes.json`.
+- **Backbone AST** (`MIT/ast-finetuned-audioset-10-10-0.4593`, ~346 МБ) в репозитории не хранится —
+  скачивается с HuggingFace автоматически при первом запуске воркера (нужен интернет, один раз).
+
+Поэтому после `git clone` проект **воспроизводим у любого**: голова — в репозитории, backbone — из
+HuggingFace, данные сервиса — в Docker-томах. Доступ к диску D автора или к MinIO для запуска сервиса **не нужен**.
+
+---
+
+## Быстрый старт (Docker)
+
+> Требуется Docker Desktop. Работает на Windows / macOS / Linux: данные хранятся в именованных
+> Docker-томах, привязки к конкретному диску или букве нет.
 
 ```powershell
 cd deploy
-copy .env.example .env          # при желании поправьте пароли/путь HOST_DATA_DIR
-mkdir D:\mfdp-data              # каталог для томов на D (если ещё нет)
+copy .env.example .env          # Linux/macOS: cp .env.example .env
 
 docker compose up -d --build    # поднять весь стек
 ```
@@ -85,13 +97,16 @@ docker compose up -d --build    # поднять весь стек
 Откройте **http://localhost** — это UI. Swagger: **http://localhost/api/docs**.
 Консоль RabbitMQ: **http://localhost:15672** (логин/пароль из `.env`).
 
-При первом старте воркер скачивает модель AST с HuggingFace в `D:/mfdp-data/hf-cache` (один раз).
-Прогресс видно в логах: `docker compose logs -f worker`.
+При первом старте воркер один раз скачивает backbone AST с HuggingFace (~346 МБ) в том `hf_cache`
+(нужен интернет). Прогресс: `docker compose logs -f worker`.
 
-> 💡 Чтобы и сам образ Docker лежал на D, в Docker Desktop:
-> **Settings → Resources → Advanced → Disk image location → `D:\DockerData`** (разово).
+Остановить: `docker compose down` (данные в томах сохраняются; стираются только при `docker compose down -v`).
 
-Остановить: `docker compose down` (данные на D сохраняются).
+### Где хранятся данные и как держать их на диске D
+По умолчанию БД, очередь, кэш модели и загруженные аудио лежат в именованных Docker-томах
+(`postgres_data`, `rabbitmq_data`, `hf_cache`, `uploads`) — кроссплатформенно, путь указывать не нужно.
+Чтобы всё физически было на **диске D**: Docker Desktop → **Settings → Resources → Advanced →
+Disk image location → `D:\DockerData`** (разово; туда уедут и образы, и тома).
 
 ---
 
@@ -155,7 +170,7 @@ pytest
 ```
 deploy/
 ├── docker-compose.yaml      # db, rabbitmq, app, worker (масштабируемый), web(nginx)
-├── .env.example             # настройки + HOST_DATA_DIR=D:/mfdp-data
+├── .env.example             # настройки сервиса (БД, RabbitMQ, инференс)
 ├── nginx/nginx.conf
 ├── common/                  # общий код API и воркера
 │   ├── config.py            # настройки (pydantic-settings)
@@ -187,7 +202,7 @@ deploy/
   Wikipedia / Wikimedia Commons скриптом [`scripts/fetch_species_photos.py`](scripts/fetch_species_photos.py)
   (источники — в `app/static/species/CREDITS.md`, лицензии в основном CC BY-SA / Public Domain).
   SVG-заглушка остаётся фолбэком (`onerror`), если файл недоступен. Обновить фото — перезапустить скрипт.
-- **Первый запуск воркера** дольше обычного: качается backbone AST (~346 МБ) в кэш на D.
+- **Первый запуск воркера** дольше обычного: качается backbone AST (~346 МБ) в том `hf_cache`.
 - **Точность.** По данным §4 ноутбука улучшения: при пороге τ=0.4 — точность ~92% при покрытии ~81%; порог
   настраивается через `CONFIDENCE_THRESHOLD` в `.env`.
 
@@ -206,7 +221,7 @@ deploy/
 **Разделение хранилищ в проекте:**
 - **MinIO (через DVC)** — версионирование *датасета обучения* (воспроизводимость: датасет → обучение головы в Colab).
 - **PostgreSQL** — *результаты сервиса* (история определений и оценки по видам).
-- **Тома Docker на диске D** — БД, RabbitMQ, кэш модели, загруженные пользователем аудио.
+- **Docker-тома** (`postgres_data`, `rabbitmq_data`, `hf_cache`, `uploads`) — БД, RabbitMQ, кэш модели, загруженные аудио (по умолчанию управляются Docker; при желании — на диске D).
 
 Развёрнутый сервис **не обращается к MinIO в рантайме**: в прод уезжает только лёгкая
 голова `ast_head.joblib` + `classes.json`, а backbone AST подтягивается с HuggingFace.
